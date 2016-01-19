@@ -1,4 +1,4 @@
- angular.module('angular-jwt.jwt', [])
+ angular.module('angular-django-jwt.jwt', [])
   .service('jwtHelper', function($window) {
 
     this.urlBase64Decode = function(str) {

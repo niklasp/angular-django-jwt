@@ -3,8 +3,10 @@
 // before all nested files are concatenated by Grunt
 
 // Modules
-angular.module('angular-jwt',
+angular.module('angular-django-jwt',
     [
-        'angular-jwt.interceptor',
-        'angular-jwt.jwt'
+        'angular-django-jwt.constants',
+        'angular-django-jwt.interceptor',
+        'angular-django-jwt.jwt',
+        'angular-django-jwt.auth-service'
     ]);

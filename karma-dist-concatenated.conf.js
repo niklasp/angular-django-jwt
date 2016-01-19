@@ -27,7 +27,7 @@ module.exports = function(config) {
     files: [
       'bower/angular/angular.js',
       'bower/angular-mocks/angular-mocks.js',
-      'dist/angular-jwt.js',
+      'dist/angular-django-jwt.js',
       'test/unit/**/*.js'
     ],
 

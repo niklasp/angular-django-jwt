@@ -1,12 +1,16 @@
 {
-  "name": "angular-jwt",
-  "version": "0.0.9",
-  "description": "Library to help you work with JWTs on AngularJS",
+  "name": "angular-django-jwt",
+  "version": "0.0.5",
+  "description": "Library to help you work with JWTs on AngularJS with django backend",
   "main": "index.js",
   "author": {
+    "name": "Niklas Plessing",
+    "email": "niklas@eedee.net"
+  },
+  "contributors": [{
     "name": "Martin Gontovnikas",
     "email": "martin@gon.to"
-  },
+  }],
   "scripts": {
     "install": "bower install",
     "test": "gulp test-src"

@@ -1,3 +1,2 @@
-require('./dist/angular-jwt.js');
-module.exports = 'angular-jwt';
-
+require('./dist/angular-django-jwt.js');
+module.exports = 'angular-django-jwt';

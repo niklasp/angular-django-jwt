@@ -3,7 +3,7 @@
 describe('jwt', function() {
 
   beforeEach(function() {
-    module('angular-jwt.jwt');
+    module('angular-django-jwt.jwt');
   });
 
   describe('no expiration tokens', function() {

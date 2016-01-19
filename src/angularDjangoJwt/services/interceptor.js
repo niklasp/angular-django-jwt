@@ -1,11 +1,19 @@
- angular.module('angular-jwt.interceptor', [])
-  .provider('jwtInterceptor', function() {
+ angular.module('angular-django-jwt.interceptor', ['angular-django-jwt.constants'])
+  .provider('jwtInterceptor', function(AUTH_EVENTS) {
 
     this.urlParam = null;
     this.authHeader = 'Authorization';
     this.authPrefix = 'Bearer ';
     this.tokenGetter = function() {
       return null;
+    }
+    this.responseError = function(response) {
+      // handle the case where the user is not authenticated
+      $rootScope.$broadcast({
+        401: AUTH_EVENTS.notAuthorized,
+        403: AUTH_EVENTS.notAuthenticated
+      }[response.status], response);
+      return $q.reject(response);
     }
 
     var config = this;
@@ -46,13 +54,7 @@
             return request;
           });
         },
-        responseError: function (response) {
-          // handle the case where the user is not authenticated
-          if (response.status === 401) {
-            $rootScope.$broadcast('unauthenticated', response);
-          }
-          return $q.reject(response);
-        }
+        responseError: this.responseError
       };
     };
   });

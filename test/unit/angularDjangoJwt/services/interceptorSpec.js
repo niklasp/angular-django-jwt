@@ -3,7 +3,7 @@
 describe('interceptor', function() {
 
   beforeEach(function() {
-    module('angular-jwt.interceptor');
+    module('angular-django-jwt.interceptor');
   });
 
   afterEach(inject(function($httpBackend) {

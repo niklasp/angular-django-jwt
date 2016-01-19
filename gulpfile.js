@@ -5,21 +5,22 @@ var gulp = require('gulp'),
     rename = require('gulp-rename'),
     ngAnnotate = require('gulp-ng-annotate'),
     sourceFiles = [
-      'src/angularJwt/angularJwt.prefix',
-      'src/angularJwt/angularJwt.js',
-      'src/angularJwt/directives/**/*.js',
-      'src/angularJwt/filters/**/*.js',
-      'src/angularJwt/services/**/*.js',
-      'src/angularJwt/angularJwt.suffix'
+      'src/angularDjangoJwt/angularDjangoJwt.prefix',
+      'src/angularDjangoJwt/angularDjangoJwt.js',
+      'src/angularDjangoJwt/constants/**/*.js',
+      'src/angularDjangoJwt/directives/**/*.js',
+      'src/angularDjangoJwt/filters/**/*.js',
+      'src/angularDjangoJwt/services/**/*.js',
+      'src/angularDjangoJwt/angularDjangoJwt.suffix'
     ];
 
 gulp.task('build', function() {
   gulp.src(sourceFiles)
-    .pipe(concat('angular-jwt.js'))
+    .pipe(concat('angular-django-jwt.js'))
     .pipe(ngAnnotate())
     .pipe(gulp.dest('./dist/'))
     .pipe(uglify())
-    .pipe(rename('angular-jwt.min.js'))
+    .pipe(rename('angular-django-jwt.min.js'))
     .pipe(gulp.dest('./dist'))
 });
 
