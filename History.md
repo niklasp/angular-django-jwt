@@ -1,3 +1,8 @@
+0.1.0 / 2016-01-19
+==================
+
+  * cloned to django repository
+  * added DjangoAuthService
 
 0.0.9 / 2015-06-02
 ==================

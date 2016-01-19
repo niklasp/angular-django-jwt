@@ -1,6 +1,6 @@
 {
   "name": "angular-django-jwt",
-  "version": "0.0.5",
+  "version": "0.1.0",
   "description": "Library to help you work with JWTs on AngularJS",
   "author": {
     "name": "Niklas Plessing",
