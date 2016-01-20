@@ -19,6 +19,10 @@
     "Gruntfile.js",
     "**/.*"
   ],
+  "repository": {
+      "type": "git",
+      "url": "https://github.com/niklasp/angular-django-jwt.git"
+  },
   "dependencies": {
     "angular": "*",
     "a0-angular-storage": "~0.0.13"
