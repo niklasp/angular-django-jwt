@@ -1,8 +1,13 @@
+0.1.1 / 2016-01-19
+==================
+
+  * Ready for bower register (angular-django-auth)
+
 0.1.0 / 2016-01-19
 ==================
 
-  * cloned to django repository
-  * added DjangoAuthService
+  * Cloned to django repository
+  * Added DjangoAuthService
 
 0.0.9 / 2015-06-02
 ==================
