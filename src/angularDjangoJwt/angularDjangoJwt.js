@@ -6,7 +6,7 @@
 angular.module('angular-django-jwt',
     [
         'angular-django-jwt.constants',
+        'angular-django-jwt.auth-service',
         'angular-django-jwt.interceptor',
         'angular-django-jwt.jwt',
-        'angular-django-jwt.auth-service'
     ]);

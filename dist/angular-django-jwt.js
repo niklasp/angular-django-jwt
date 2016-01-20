@@ -9,9 +9,9 @@
 angular.module('angular-django-jwt',
     [
         'angular-django-jwt.constants',
+        'angular-django-jwt.auth-service',
         'angular-django-jwt.interceptor',
         'angular-django-jwt.jwt',
-        'angular-django-jwt.auth-service'
     ]);
 
 'use strict';
@@ -27,96 +27,99 @@ angular
     notAuthorized: 'auth-not-authorized'
   });
 
-'use strict';
-angular.module('angular-django-jwt.auth-service', ['angular-storage', '$http', '$q' ])
-.service('DjangoAuthService', ["$log", "$http", "$q", "store", function ($log, $http, $q, store) {
+angular.module('angular-django-jwt.auth-service', ['angular-storage'])
+.provider('djangoAuthService', function () {
   this.LOCAL_CREDENTIALS_KEY = 'user_credentials';
-  this.SERVER_URL = '';
-
-  var _identity = null; //eslint-disable-line
+  this.serverUrl = '';
   var config = this;
-  return {
-    login: login,
-    logout: logout,
-    isAuthenticated: isAuthenticated,
-    isAuthorized: isAuthorized,
-    getUser: getUser
-  };
 
+  var _identity = null;
 
-  function login (credentials) {
-    if (config.SERVER_URL === "") {
-      $log.error('SERVER_URL must not be empty, to set, call DjangoAuthService.SERVER_URL = "your.server.url"');
+  this.$get = ["$log", "$http", "$q", "store", function($log, $http, $q, store) {
+    return {
+      login: login,
+      logout: logout,
+      isAuthenticated: isAuthenticated,
+      isAuthorized: isAuthorized,
+      getUser: getUser,
     }
-    return $http
-      //.post(AuthConfig.ENV.SERVER_URL + 'auth/login/', {username: credentials.username, password: credentials.password})
-      .post(config.SERVER_URL + 'auth/login/', {username: credentials.username, password: credentials.password})
-      .then(loginSuccessFn, loginErrorFn);
 
-    function loginSuccessFn (data, status, headers, config) { //eslint-disable-line
-      if (data.data) {
-        storeUserCredentials(data.data);
-        return(data.data);
+    function login (credentials) {
+      if (config.serverUrl === '') {
+        var errorMsg = 'SERVER_URL must not be empty, to set, call DjangoAuthService.SERVER_URL = "your.server.url"';
+        $log.error(errorMsg);
+        return $q.reject(errorMsg);
+      } else {
+        return $http
+          .post(config.serverUrl + 'auth/login/', {username: credentials.username, password: credentials.password})
+          .then(loginSuccessFn, loginErrorFn);
+      }
+
+      function loginSuccessFn (data, status, headers, config) { //eslint-disable-line
+        if (data.data) {
+          storeUserCredentials(data.data);
+          return(data.data);
+        }
+      }
+
+      function loginErrorFn (data, status, headers, config) { //eslint-disable-line
+        return $q.reject('DjangoAuthService: Login Failed.');
       }
     }
 
-    function loginErrorFn (data, status, headers, config) { //eslint-disable-line
-      return('DjangoAuthService: Login Failed.');
+    function logout () {
+      return deleteUserCredentials();
     }
-  }
 
-  function logout () {
-    return deleteUserCredentials();
-  }
+    function getUser () {
+      return _identity;
+    }
 
-  function getUser () {
-    return _identity;
-  }
+    function isAuthenticated () {
+      if (_identity === null) {
+        _identity = getIdentity().then(function (data) {
+          return data;
+        });
+      }
+      return $q.when(_identity);
+    }
 
-  function isAuthenticated () {
-    if (_identity === null) {
-      _identity = getIdentity().then(function (data) {
-        return data;
+    function isAuthorized (authorizedRoles) {
+      if (!angular.isArray(authorizedRoles)) {
+        authorizedRoles = [authorizedRoles];
+      }
+      return isAuthenticated().then(function (identity) {
+        return authorizedRoles.indexOf(identity.userRole !== -1);
       });
     }
-    return $q.when(_identity);
-  }
 
-  function isAuthorized (authorizedRoles) {
-    if (!angular.isArray(authorizedRoles)) {
-      authorizedRoles = [authorizedRoles];
-    }
-    return isAuthenticated().then(function (identity) {
-      return authorizedRoles.indexOf(identity.userRole !== -1);
-    });
-  }
-
-  function getIdentity () {
-    var deferred = $q.defer();
-    if (_identity !== null) {
-      deferred.resolve(_identity);
-    } else {
-      var data = store.get(config.LOCAL_CREDENTIALS_KEY);
-      if (data !== null) {
-        _identity = data;
-        deferred.resolve(data);
+    function getIdentity () {
+      var deferred = $q.defer();
+      if (_identity !== null) {
+        deferred.resolve(_identity);
       } else {
-        deferred.reject();
+        var data = store.get(config.LOCAL_CREDENTIALS_KEY);
+        if (data !== null) {
+          _identity = data;
+          deferred.resolve(data);
+        } else {
+          deferred.reject();
+        }
       }
+      return deferred.promise;
     }
-    return deferred.promise;
-  }
 
-  function storeUserCredentials (jwtPayload) {
-    store.set(config.LOCAL_CREDENTIALS_KEY, jwtPayload);
-    _identity = jwtPayload;
-  }
+    function storeUserCredentials (jwtPayload) {
+      store.set(config.LOCAL_CREDENTIALS_KEY, jwtPayload);
+      _identity = jwtPayload;
+    }
 
-  function deleteUserCredentials () {
-    return store.remove(config.LOCAL_CREDENTIALS_KEY);
-  }
+    function deleteUserCredentials () {
+      return store.remove(config.LOCAL_CREDENTIALS_KEY);
+    }
+  }]
 
-}]);
+});
 
  angular.module('angular-django-jwt.interceptor', ['angular-django-jwt.constants'])
   .provider('jwtInterceptor', ["AUTH_EVENTS", function(AUTH_EVENTS) {
@@ -127,13 +130,8 @@ angular.module('angular-django-jwt.auth-service', ['angular-storage', '$http', '
     this.tokenGetter = function() {
       return null;
     }
-    this.responseError = function(response) {
-      // handle the case where the user is not authenticated
-      $rootScope.$broadcast({
-        401: AUTH_EVENTS.notAuthorized,
-        403: AUTH_EVENTS.notAuthenticated
-      }[response.status], response);
-      return $q.reject(response);
+    this.responseError = function() {
+      return null;
     }
 
     var config = this;
@@ -174,7 +172,20 @@ angular.module('angular-django-jwt.auth-service', ['angular-storage', '$http', '
             return request;
           });
         },
-        responseError: this.responseError
+        responseError: function (response) {
+          if (config.responseError() === null) {
+            // handle the case where the user is not authenticated
+            $rootScope.$broadcast({
+              401: AUTH_EVENTS.notAuthorized,
+              403: AUTH_EVENTS.notAuthenticated
+            }[response.status], response);
+            return $q.reject(response);
+          } else {
+            return $injector.invoke(config.responseError, this, {
+              response: response
+            })
+          }
+        }
       };
     }];
   }]);

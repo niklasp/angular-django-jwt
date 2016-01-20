@@ -7,13 +7,8 @@
     this.tokenGetter = function() {
       return null;
     }
-    this.responseError = function(response) {
-      // handle the case where the user is not authenticated
-      $rootScope.$broadcast({
-        401: AUTH_EVENTS.notAuthorized,
-        403: AUTH_EVENTS.notAuthenticated
-      }[response.status], response);
-      return $q.reject(response);
+    this.responseError = function() {
+      return null;
     }
 
     var config = this;
@@ -54,7 +49,20 @@
             return request;
           });
         },
-        responseError: this.responseError
+        responseError: function (response) {
+          if (config.responseError() === null) {
+            // handle the case where the user is not authenticated
+            $rootScope.$broadcast({
+              401: AUTH_EVENTS.notAuthorized,
+              403: AUTH_EVENTS.notAuthenticated
+            }[response.status], response);
+            return $q.reject(response);
+          } else {
+            return $injector.invoke(config.responseError, this, {
+              response: response
+            })
+          }
+        }
       };
     };
   });
