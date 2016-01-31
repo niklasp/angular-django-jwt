@@ -26,6 +26,11 @@ npm install angular-django-jwt
 <script type="text/javascript" src="https://cdn.rawgit.com/auth0/angular-django-jwt/master/dist/angular-django-jwt.js"></script>
 ````
 
+Do not forget to add `angular-django-jwt` as a dependency to your module:
+````js
+angular.module('app', ['angular-django-jwt'])
+````
+
 ## jwtHelper
 
 jwtHelper will take care of helping you decode the token and check its expiration date.
