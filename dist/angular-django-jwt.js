@@ -76,12 +76,7 @@ angular.module('angular-django-jwt.auth-service', ['angular-storage'])
     }
 
     function isAuthenticated () {
-      if (_identity === null) {
-        _identity = getIdentity().then(function (data) {
-          return data;
-        });
-      }
-      return $q.when(_identity);
+      return getIdentity();
     }
 
     function isAuthorized (authorizedRoles) {
