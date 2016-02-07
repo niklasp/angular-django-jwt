@@ -4,6 +4,7 @@ describe('interceptor', function() {
 
   beforeEach(function() {
     module('angular-django-jwt.interceptor');
+    module('angularCordovaNetworkStatus');
   });
 
   afterEach(inject(function($httpBackend) {
@@ -16,6 +17,9 @@ describe('interceptor', function() {
     module( function ($httpProvider, jwtInterceptorProvider) {
       jwtInterceptorProvider.tokenGetter = function() {
         return 123;
+      }
+      jwtInterceptorProvider.interceptRequest = function() {
+        return true;
       }
       $httpProvider.interceptors.push('jwtInterceptor');
     });
@@ -38,6 +42,9 @@ describe('interceptor', function() {
     module( function ($httpProvider, jwtInterceptorProvider) {
       jwtInterceptorProvider.tokenGetter = function($q) {
         return $q.when(345);
+      }
+      jwtInterceptorProvider.interceptRequest = function () {
+        return true;
       }
       $httpProvider.interceptors.push('jwtInterceptor');
     });
@@ -78,6 +85,9 @@ describe('interceptor', function() {
   it('should add the token to the url params when the configuration option is set', function (done) {
     module( function ($httpProvider, jwtInterceptorProvider) {
       jwtInterceptorProvider.urlParam = 'access_token';
+      jwtInterceptorProvider.interceptRequest = function () {
+        return true;
+      }
       jwtInterceptorProvider.tokenGetter = function() {
         return 123;
       }
@@ -95,6 +105,8 @@ describe('interceptor', function() {
         }).respond(200, 'hello');
         $httpBackend.flush();
     });
+    // expect(true).to.be.equal(true);
+    // done();
 
   });
 });

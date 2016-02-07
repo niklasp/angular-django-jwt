@@ -1,4 +1,4 @@
- angular.module('angular-django-jwt.interceptor', ['angular-django-jwt.constants'])
+ angular.module('angular-django-jwt.interceptor', ['angular-django-jwt.constants', 'angularCordovaNetworkStatus'])
   .provider('jwtInterceptor', function(AUTH_EVENTS) {
 
     this.urlParam = null;
@@ -10,12 +10,27 @@
     this.responseError = function() {
       return null;
     }
+    this.interceptRequest = function() {
+      return true;
+    }
 
     var config = this;
 
-    this.$get = function ($q, $injector, $rootScope) {
+    this.$get = function ($q, $injector, $rootScope, NetworkStatusMonitor) {
       return {
         request: function (request) {
+
+          if (typeof NetworkStatusMonitor !== "undefined") {
+            if (NetworkStatusMonitor.isOffline()) {
+              console.log('you are offline we will have to do something');
+            }
+          }
+
+          if (!$injector.invoke(config.interceptRequest, this, {config:request})) {
+            console.log('not intercepting request, because config.interceptRequest was false');
+            return request;
+          }
+
           if (request.skipAuthorization) {
             return request;
           }

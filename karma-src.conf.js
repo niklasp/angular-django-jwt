@@ -27,6 +27,7 @@ module.exports = function(config) {
     files: [
       'bower/angular/angular.js',
       'bower/angular-mocks/angular-mocks.js',
+      'bower/angular-cordova-network-status/dist/angular-cordova-network-status.js',
       'src/**/*.js',
       'test/unit/**/*.js'
     ],

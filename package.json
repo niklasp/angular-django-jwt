@@ -15,7 +15,9 @@
     "install": "bower install",
     "test": "gulp test-src"
   },
-  "dependencies": {},
+  "dependencies": {
+    "angular-cordova-network-status": "*"
+  },
   "devDependencies": {
     "karma-mocha-reporter": "^0.3.1",
     "chai": "^1.9.1",

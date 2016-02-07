@@ -1,12 +1,18 @@
-angular.module('angular-django-jwt.auth-service', ['angular-storage'])
+angular.module('angular-django-jwt.auth-service', ['angular-storage', 'angular-django-jwt.constants'])
 .provider('djangoAuthService', function () {
+
+
+  //these values can be changed in apps config stage because this is a provider
+  //use djangoAuthService.serverUrl = ... for example
   this.LOCAL_CREDENTIALS_KEY = 'user_credentials';
   this.serverUrl = '';
+
   var config = this;
 
   var _identity = null;
 
-  this.$get = function($log, $http, $q, store) {
+  //we return a service here
+  this.$get = function($log, $http, $q, store, $rootScope, AUTH_EVENTS) {
     return {
       login: login,
       logout: logout,
@@ -17,7 +23,7 @@ angular.module('angular-django-jwt.auth-service', ['angular-storage'])
 
     function login (credentials) {
       if (config.serverUrl === '') {
-        var errorMsg = 'SERVER_URL must not be empty, to set, call DjangoAuthService.SERVER_URL = "your.server.url"';
+        var errorMsg = 'SERVER_URL must not be empty, to set, call djangoAuthService.serverUrl = "your.server.url"';
         $log.error(errorMsg);
         return $q.reject(errorMsg);
       } else {
@@ -29,11 +35,13 @@ angular.module('angular-django-jwt.auth-service', ['angular-storage'])
       function loginSuccessFn (data, status, headers, config) { //eslint-disable-line
         if (data.data) {
           storeUserCredentials(data.data);
+          $rootScope.$broadcast(AUTH_EVENTS.loginSuccess);
           return(data.data);
         }
       }
 
       function loginErrorFn (data, status, headers, config) { //eslint-disable-line
+        $rootScope.$broadcast(AUTH_EVENTS.loginFailed);
         return $q.reject('DjangoAuthService: Login Failed.');
       }
     }
@@ -47,12 +55,7 @@ angular.module('angular-django-jwt.auth-service', ['angular-storage'])
     }
 
     function isAuthenticated () {
-      if (_identity === null) {
-        _identity = getIdentity().then(function (data) {
-          return data;
-        });
-      }
-      return $q.when(_identity);
+      return getIdentity();
     }
 
     function isAuthorized (authorizedRoles) {
